@@ -14,6 +14,7 @@
       "Great Britain",
       "Japan",
       "China",
+      "Italy",
       "France",
       "Sweden",
       "Israel"
@@ -27,8 +28,13 @@
     ]
   },
   "scanner": {
-    "region": [1289, 261, 472, 35],
-    "confidence_threshold": 0.70,
+    "region": [
+      1289,
+      261,
+      472,
+      35
+    ],
+    "confidence_threshold": 0.7,
     "hotkey": "\\"
   },
   "hotkeys": {
