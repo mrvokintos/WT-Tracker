@@ -1,1 +1,45 @@
-{"x": 0, "y": 353, "monitor_idx": 0, "size": 20, "opa": 100, "nations": ["USSR", "China"], "types": ["tank", "plane", "heli", "zsu", "special"], "scan_region": [965, 276, 240, 24], "scan_hotkey": "\\", "overlay_hotkey": "f5", "show_notes": false, "show_names": false, "sound_enabled": true}
+{
+  "overlay": {
+    "x": 0,
+    "y": 382,
+    "size": 21,
+    "opacity": 86,
+    "monitor_idx": 1
+  },
+  "filters": {
+    "nations": [
+      "USA",
+      "Germany",
+      "USSR",
+      "Great Britain",
+      "Japan",
+      "China",
+      "France",
+      "Sweden",
+      "Israel"
+    ],
+    "types": [
+      "tank",
+      "plane",
+      "heli",
+      "zsu",
+      "special"
+    ]
+  },
+  "scanner": {
+    "region": [1289, 261, 472, 35],
+    "confidence_threshold": 0.70,
+    "hotkey": "\\"
+  },
+  "hotkeys": {
+    "scan": "\\",
+    "overlay_toggle": "f5"
+  },
+  "display": {
+    "show_notes": false,
+    "show_names": false
+  },
+  "audio": {
+    "enabled": true
+  }
+}
