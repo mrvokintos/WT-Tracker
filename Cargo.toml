@@ -1,0 +1,63 @@
+[package]
+name = "wt-tracker"
+version = "2.0.0-rc1"
+edition = "2021"
+description = "War Thunder enemy tracker overlay (Linux + Windows)"
+license = "GPL-3.0-or-later"
+publish = false
+
+[[bin]]
+name = "wt-tracker"
+path = "src/main.rs"
+
+[dependencies]
+eframe = { version = "0.29", default-features = false, features = ["default_fonts", "glow", "x11", "wayland"] }
+egui = "0.29"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+ureq = { version = "2.10", default-features = false, features = ["json", "tls"] }
+image = { version = "0.25", default-features = false, features = ["png", "jpeg"] }
+rodio = { version = "0.19", default-features = false, features = ["symphonia-mp3"] }
+regex = "1"
+sha2 = "0.10"
+sys-locale = "0.3"
+# reads the game's own symbol font (vehicle markers) from ui/fonts.vromfs.bin
+wt_blk = "0.3.1"
+# which marker characters the game font covers (already built as part of egui)
+ttf-parser = "0.25"
+log = "0.4"
+env_logger = { version = "0.11", default-features = false, features = ["auto-color", "humantime"] }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+x11rb = "0.13"
+winit = { version = "0.30", default-features = false, features = ["x11", "wayland"] }
+evdev = "0.12"
+raw-window-handle = "0.6"
+ashpd = { version = "0.10", optional = true }
+tokio = { version = "1", features = ["rt"], optional = true }
+futures-util = { version = "0.3", optional = true }
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.59", features = [
+    "Win32_Foundation",
+    "Win32_Graphics_Gdi",
+    "Win32_UI_WindowsAndMessaging",
+    "Win32_UI_Input_KeyboardAndMouse",
+] }
+
+[features]
+default = ["portal"]
+# wayland fallback for hotkeys/screenshots
+portal = ["dep:ashpd", "dep:tokio", "dep:futures-util"]
+
+[profile.dev]
+opt-level = 1
+
+# the flag scan is heavy for opt-level 1; keeps `cargo test` fast
+[profile.test]
+opt-level = 3
+
+[profile.release]
+opt-level = 3
+lto = "thin"
+strip = true

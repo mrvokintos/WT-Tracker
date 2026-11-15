@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=Application
+Name=WT Tracker
+Comment=War Thunder enemy tracker overlay
+Exec=wt-tracker
+Icon=applications-games
+Terminal=false
+Categories=Game;
+StartupWMClass=wt-tracker
+X-KDE-DBUS-Restricted-Interfaces=org.kde.KWin.ScreenShot2

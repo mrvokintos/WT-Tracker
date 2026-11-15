@@ -1,0 +1,11 @@
+/target
+/last_scan_debug.png
+*.json.tmp
+/recordings
+/vehicles.meta.json
+*.download
+/last_scan_report.txt
+/unknown.txt
+__pycache__/
+/config.json
+/symbols_skyquake.ttf

@@ -1,0 +1,84 @@
+name: build
+
+# Every push builds and tests. A v* tag (matching the version in Cargo.toml)
+# also publishes a GitHub release with the archives.
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            artifact: wt-tracker-linux-x86_64
+            bin: wt-tracker
+          - os: windows-latest
+            artifact: wt-tracker-windows-x86_64
+            bin: wt-tracker.exe
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Linux deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxkbcommon-dev libxkbcommon-x11-dev libwayland-dev \
+            libasound2-dev libdbus-1-dev libx11-dev libxcursor-dev libxrandr-dev libxi-dev \
+            libgl1-mesa-dev libudev-dev pkg-config
+      - run: cargo test --release
+      - run: cargo build --release
+      - name: Package
+        shell: bash
+        run: |
+          mkdir -p dist/${{ matrix.artifact }}
+          cp target/release/${{ matrix.bin }} dist/${{ matrix.artifact }}/
+          # flags and sounds are embedded; a copy next to the exe would shadow newer built-in ones
+          cp vehicles.json README.md README.ru.md LICENSE dist/${{ matrix.artifact }}/
+          cp -r docs dist/${{ matrix.artifact }}/
+          # translation templates; not named lang/ so an old copy never overrides a newer built-in translation
+          cp -r lang dist/${{ matrix.artifact }}/lang-templates
+          if [ "$RUNNER_OS" = "Linux" ]; then cp packaging/wt-tracker.desktop dist/${{ matrix.artifact }}/; fi
+      - name: Archive
+        shell: bash
+        run: |
+          cd dist
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            7z a "../${{ matrix.artifact }}.zip" "${{ matrix.artifact }}"
+          else
+            tar czf "../${{ matrix.artifact }}.tar.gz" "${{ matrix.artifact }}"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.artifact }}.*
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Tag matches Cargo.toml
+        run: |
+          v=$(grep -m1 '^version' Cargo.toml | cut -d'"' -f2)
+          test "v$v" = "${GITHUB_REF_NAME}" || { echo "tag ${GITHUB_REF_NAME} != Cargo.toml v$v"; exit 1; }
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: out/*
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref_name, '-') }}
