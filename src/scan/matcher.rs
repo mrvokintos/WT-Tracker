@@ -713,9 +713,12 @@ fn find_slots(hay: &RgbImage) -> Option<Vec<Slot>> {
             x += 1;
         }
     }
-    // common row: rows that are flag-like across the flag columns
+    // common row: rows that are flag-like across the flag columns. Only runs about a flag wide
+    // vote: with one flag per team the letter strokes of "Score: 18000" would outvote them
+    let wide: Vec<(u32, u32)> = runs.iter().copied().filter(|&(a, b)| (b - a) as f32 >= 0.5 * cmax as f32 * FLAG_ASPECT).collect();
+    let voters = if wide.is_empty() { &runs } else { &wide };
     let rows: Vec<u32> = (0..h)
-        .map(|y| runs.iter().map(|&(a, b)| (a..b).filter(|&x| at(x, y)).count() as u32).sum())
+        .map(|y| voters.iter().map(|&(a, b)| (a..b).filter(|&x| at(x, y)).count() as u32).sum())
         .collect();
     let rmax = *rows.iter().max()?;
     let (mut top, mut bottom, mut best) = (0, 0, 0);
@@ -731,6 +734,26 @@ fn find_slots(hay: &RgbImage) -> Option<Vec<Slot>> {
             }
         } else {
             y += 1;
+        }
+    }
+    // the game draws black (the German Empire's top stripe) as dark grey, almost the background:
+    // with one flag per team a third of the band is seen by one flag only and drops below half.
+    // The width doesn't suffer, so if the band is much lower than the flags are wide, take the
+    // window of the expected height with the most flag pixels
+    if !wide.is_empty() {
+        let mut est: Vec<f32> = wide
+            .iter()
+            .map(|&(a, b)| {
+                let rw = (b - a) as f32;
+                rw / (rw / (cmax as f32 * FLAG_ASPECT)).round().max(1.0) / FLAG_ASPECT
+            })
+            .collect();
+        est.sort_by(f32::total_cmp);
+        let want = (est[est.len() / 2].round() as u32).min(h);
+        if want as f32 > (bottom - top) as f32 * 1.15 {
+            let sum = |t: u32| rows[t as usize..(t + want) as usize].iter().sum::<u32>();
+            let t = (0..=h - want).max_by_key(|&t| (sum(t), std::cmp::Reverse(t.abs_diff(top)))).unwrap_or(top);
+            (top, bottom) = (t, t + want);
         }
     }
     let fh = bottom - top;

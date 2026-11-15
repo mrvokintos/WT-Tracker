@@ -33,7 +33,7 @@ The kill feed is parsed in all 21 game client languages.
 
 The scan zone only needs to be set once. Click "Select zone" on the Settings tab, then hold Tab in a battle and press `\`. A screenshot opens: zoom in with the mouse wheel, select the flag strip with the left button and press Enter. If the zone covers both teams, the enemy side (right) is detected automatically. The flag strip gets longer with the number of nations; when the flags run into a side of the zone, the tracker widens it on that side, so the zone does not need to be redrawn for bigger battles. Flag scale adapts to any resolution. The zone picker can also be opened with `--pick-region`.
 
-The scoreboard shows the flag of the vehicle's operator country, not its tech tree: a Russian tricolour for a T-90M from the USSR tree, the West German flag for a Leopard 2 from the German tree, Australia for an M1A1 AIM from the US tree. The tracker knows every operator flag the game uses and maps each one to the tech trees it appears in, based on the vehicle database.
+The scoreboard shows the flag of the vehicle's operator country, not its tech tree: a Russian tricolour for a T-90M from the USSR tree, the West German flag for a Leopard 2 from the German tree, Australia for an M1A1 AIM from the US tree. The tracker knows every operator flag the game uses and maps each one to the tech trees it appears in, based on the vehicle database. Team flags of event battles are recognised too, for example the Triple Entente (Britain, France and the USSR tree) against the German Empire.
 
 ### Telling the teams apart
 

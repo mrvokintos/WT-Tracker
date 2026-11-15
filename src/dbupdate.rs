@@ -34,7 +34,6 @@ pub fn spawn_check(ctl: Ctl, force: bool) {
                     t!("db.failed", error = e)
                 }
             };
-            log::info!("{status}");
             ctl.with(|s| s.db_status = status);
             ctl.repaint();
         })
@@ -55,7 +54,8 @@ fn check(ctl: &Ctl, url: &str, force: bool) -> Result<String, String> {
     let remote = manifest.get("game_version").and_then(Value::as_str).unwrap_or("").to_string();
     let local = installed_version();
     if !force && !remote.is_empty() && local.as_deref() == Some(remote.as_str()) {
-        return Ok(t!("db.up_to_date", version = remote));
+        log::info!("vehicle db is up to date (game {remote})");
+        return Ok(t!("db.up_to_date"));
     }
     let mut bytes = Vec::new();
     agent
@@ -78,7 +78,8 @@ fn check(ctl: &Ctl, url: &str, force: bool) -> Result<String, String> {
         s.logic.replace_db(db);
         s.db_version = Some(remote.clone());
     });
-    Ok(t!("db.updated", count = n, version = remote))
+    log::info!("vehicle db updated: {n} vehicles, game {remote}");
+    Ok(t!("db.updated"))
 }
 
 /// The release may be mid-update or the download cut short: never store a vehicles.json that

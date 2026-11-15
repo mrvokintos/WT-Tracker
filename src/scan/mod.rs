@@ -323,6 +323,27 @@ mod tests {
         assert!(grow_zone(r, out.row.unwrap(), img.width()).is_some(), "{:?}", out.row);
     }
 
+    /// Event battle (WWI): one team flag per side, surrounded by the score text.
+    #[test]
+    fn event_battle_team_flags() {
+        let img = image::load_from_memory(include_bytes!("testdata/scoreboard_event_entente.png")).unwrap().to_rgb8();
+        let out = scan_image(&img, 0.70);
+        assert!(!out.fallback, "{:#?}", out.report);
+        assert_eq!(out.own, ["germany_empire"], "{:#?}", out.report);
+        assert_eq!(out.nations, ["triple_entente"], "{:#?}", out.report);
+    }
+
+    /// Same battle from the other side: the German Empire's black stripe is drawn almost background grey.
+    #[test]
+    fn event_battle_dark_stripe_flag() {
+        let img = image::load_from_memory(include_bytes!("testdata/scoreboard_event_entente_dark.png")).unwrap().to_rgb8();
+        let out = scan_image(&img, 0.70);
+        assert!(!out.fallback, "{:#?}", out.report);
+        let mut all = [out.own.clone(), out.nations.clone()].concat();
+        all.sort();
+        assert_eq!(all, ["germany_empire", "triple_entente"], "{:#?}", out.report);
+    }
+
     #[test]
     fn team_context_from_real_scoreboard() {
         let img = image::load_from_memory(include_bytes!("testdata/scoreboard_mixed_1440p.png")).unwrap().to_rgb8();

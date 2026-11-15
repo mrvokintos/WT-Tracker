@@ -84,6 +84,11 @@ pub const TREE_FLAGS: &[(&str, &str)] = &[
     ("israel", "Israel"),
 ];
 
+/// Team flags of event battles that no vehicle carries (the Russian Empire is in the USSR tree).
+const EVENT_FLAGS: &[(&str, &[&str])] = &[
+    ("triple_entente", &["Great Britain", "France", "USSR"]),
+];
+
 /// Template file name -> flag code (also accepts the old "Great Britain.png" style names).
 pub fn flag_code(name: &str) -> String {
     let n = name.trim().to_lowercase().replace(' ', "_");
@@ -117,6 +122,9 @@ fn flag_map(exact: &HashMap<String, VehicleInfo>) -> HashMap<String, Vec<String>
         .collect();
     for (code, nation) in TREE_FLAGS {
         out.entry(code.to_string()).or_insert_with(|| vec![nation.to_string()]);
+    }
+    for (code, trees) in EVENT_FLAGS {
+        out.entry(code.to_string()).or_insert_with(|| trees.iter().map(|t| t.to_string()).collect());
     }
     out
 }
@@ -243,6 +251,8 @@ mod tests {
         assert_eq!(db.flag_nations("canada"), vec!["Great Britain", "USA"]);
         assert_eq!(db.flag_nations("ussr"), vec!["USSR"], "killstreaks and shared names don't count");
         assert_eq!(db.flag_nations("usa"), vec!["USA"]);
+        assert_eq!(db.flag_nations("triple_entente"), vec!["Great Britain", "France", "USSR"]);
+        assert_eq!(db.flag_nations("germany_empire"), vec!["Germany"]);
         assert_eq!(db.flag_nations("Great Britain"), db.flag_nations("britain"), "old template names");
         assert_eq!(db.flag_nations("britain")[0], "Great Britain");
         assert!(db.flag_nations("atlantis").is_empty());

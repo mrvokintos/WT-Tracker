@@ -145,9 +145,13 @@ impl TrackerApp {
             if ui.small_button(t!("db.update")).on_hover_text(t!("db.update_hint")).clicked() {
                 actions.push(Action::UpdateDb);
             }
+            // short results ("updated", "up to date") sit next to the button, errors get their own line
+            if !st.db_status.is_empty() && st.db_status.chars().count() <= 24 {
+                ui.label(RichText::new(&st.db_status).small().weak());
+            }
         });
         ui.label(RichText::new(types_line).small().weak());
-        if !st.db_status.is_empty() {
+        if st.db_status.chars().count() > 24 {
             ui.label(RichText::new(&st.db_status).small().weak());
         }
         ui.horizontal(|ui| {
